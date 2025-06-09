@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIZMA - Platform Bisnis Mahasiswa</title>
+    <meta name="description" content="Platform digital untuk mempromosikan dan mengembangkan bisnis mahasiswa. Temukan produk terbaik dari sesama mahasiswa di sekitar kampus Anda.">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #A8E6CF;
+            --secondary-color: #FF9800;
+            --dark-green: #7DC8A8;
+            --light-green: #F0F9F4;
+            --dark-orange: #E68900;
+            --text-dark: #2C3E50;
+            --text-light: #7F8C8D;
+            --white: #FFFFFF;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --orange-shadow: 0 10px 30px rgba(255, 152, 0, 0.2);
+            --green-shadow: 0 10px 30px rgba(168, 230, 207, 0.2);
+            --gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid var(--white);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .download-btn {
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--orange-shadow);
+        }
+
+        .download-btn:hover {
+            background: var(--dark-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(255, 152, 0, 0.3);
+        }
+
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .mobile-menu span {
+            width: 25px;
+            height: 3px;
+            background: var(--text-dark);
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="rgba(255,255,255,0.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="800" r="120" fill="url(%23a)"/></svg>');
+            opacity: 0.5;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 4rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            animation: slideInLeft 1s ease;
+        }
+
+        .hero-content .highlight {
+            color: var(--secondary-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 2rem;
+            animation: slideInLeft 1s ease 0.2s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            animation: slideInLeft 1s ease 0.4s both;
+        }
+
+        .btn-primary {
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--orange-shadow);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-orange);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            padding: 1rem 2rem;
+            border: 2px solid var(--white);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            color: var(--secondary-color);
+        }
+
+        .hero-image {
+            position: relative;
+            animation: slideInRight 1s ease;
+        }
+
+        .phone-mockup {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .phone-frame {
+            width: 100%;
+            height: 600px;
+            background: #2C3E50;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+            font-weight: bold;
+            font-size: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid var(--primary-color);
+        }
+
+        .app-preview {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            background: var(--white);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .app-title {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            font-weight: bold;
+        }
+
+        .app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .feature-card {
+            background: var(--light-green);
+            padding: 15px;
+            border-radius: 15px;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .feature-title {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .feature-desc {
+            font-size: 0.7rem;
+            color: var(--text-light);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background: var(--white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-item {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+            border-color: var(--secondary-color);
+            box-shadow: var(--orange-shadow);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--white);
+            box-shadow: var(--shadow);
+        }
+
+        .feature-item h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .feature-item p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* About Section */
+        .about {
+            padding: 6rem 2rem;
+            background: var(--light-green);
+        }
+
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 4rem;
+        }
+
+        .about-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .about-content p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--secondary-color);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .about-image {
+            position: relative;
+        }
+
+        .about-image img {
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Screenshots Section */
+        .screenshots {
+            padding: 6rem 2rem;
+            background: var(--white);
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .screenshot-item {
+            background: var(--light-green);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .screenshot-item:hover {
+            transform: scale(1.05);
+        }
+
+        .screenshot-mockup {
+            width: 200px;
+            height: 350px;
+            background: #2C3E50;
+            border-radius: 25px;
+            margin: 0 auto 1rem;
+            padding: 15px;
+            position: relative;
+        }
+
+        .screenshot-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screenshot-screen::before {
+            content: attr(data-screen);
+            position: absolute;
+            font-size: 0.9rem;
+        }
+
+        /* Download Section */
+        .download {
+            padding: 6rem 2rem;
+            background: var(--gradient);
+            text-align: center;
+            color: var(--white);
+        }
+
+        .download h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .download p {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .store-button {
+            background: var(--white);
+            color: var(--text-dark);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .store-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .store-icon {
+            font-size: 2rem;
+        }
+
+        .store-text {
+            text-align: left;
+        }
+
+        .store-text small {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .store-text span {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-dark);
+            color: var(--white);
+            padding: 3rem 2rem 1rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .footer-section p,
+        .footer-section a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            display: block;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--secondary-color);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            background: var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Scroll to Top Button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu {
+                display: flex;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .download-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .store-button {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .nav-container {
+                padding: 1rem;
+            }
+
+            .phone-frame {
+                height: 500px;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-green);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">BIZMA</div>
+            <ul class="nav-links">
+                <li><a href="#home">Beranda</a></li>
+                <li><a href="#features">Fitur</a></li>
+                <li><a href="#about">Tentang</a></li>
+                <li><a href="#screenshots">Screenshot</a></li>
+                <li><a href="#download">Download</a></li>
+            </ul>
+            <a href="#download" class="download-btn">Download App</a>
+            <div class="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Platform <span class="highlight">Bisnis Mahasiswa</span> Terdepan</h1>
+                <p>Bergabunglah dengan komunitas mahasiswa entrepreneur. Temukan produk unik, promosikan bisnis Anda, dan bangun jaringan yang kuat di kampus.</p>
+                <div class="hero-buttons">
+                    <a href="#download" class="btn-primary">
+                        <i class="fas fa-download"></i>
+                        Download Sekarang
+                    </a>
+                    <a href="#features" class="btn-secondary">
+                        <i class="fas fa-play"></i>
+                        Lihat Demo
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="app-preview">
+                                <!-- GANTI DENGAN SCREENSHOT ANDA -->
+                                <img src="images/hero-screenshot.jpg" alt="BIZMA App Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+                                
+                                <!-- ATAU JIKA INGIN TETAP PAKAI MOCK CONTENT, EDIT INI -->
+                                <!-- 
+                                <div class="app-header">
+                                    <div class="app-title">BIZMA</div>
+                                    <i class="fas fa-user-circle" style="color: var(--primary-color); font-size: 1.5rem;"></i>
+                                </div>
+                                <div class="app-content">
+                                    <div class="feature-card">
+                                        <div class="feature-title"><i class="fas fa-store"></i> Etalase Digital</div>
+                                        <div class="feature-desc">Promosikan produk Anda dengan mudah</div>
+                                    </div>
+                                    <div class="feature-card">
+                                        <div class="feature-title"><i class="fas fa-map-marker-alt"></i> Lokasi Terkini</div>
+                                        <div class="feature-desc">Temukan penjual terdekat dari lokasi Anda</div>
+                                    </div>
+                                    <div class="feature-card">
+                                        <div class="feature-title"><i class="fas fa-star"></i> Review & Rating</div>
+                                        <div class="feature-desc">Sistem rating yang terpercaya</div>
+                                    </div>
+                                </div>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Fitur Unggulan</h2>
+                <p class="section-subtitle">Dilengkapi dengan berbagai fitur canggih untuk mendukung bisnis mahasiswa Anda</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <h3>Etalase Digital</h3>
+                    <p>Buat toko online Anda sendiri dengan mudah. Upload produk, atur harga, dan kelola stok dengan sistem yang terintegrasi.</p>
+                </div>
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Lokasi Real-time</h3>
+                    <p>Temukan penjual terdekat dengan teknologi GPS. Lihat produk yang tersedia di sekitar kampus atau tempat tinggal Anda.</p>
+                </div>
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Komunitas Mahasiswa</h3>
+                    <p>Bergabung dengan komunitas mahasiswa entrepreneur. Saling mendukung dan berbagi pengalaman bisnis.</p>
+                </div>
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>Review & Rating</h3>
+                    <p>Sistem review yang transparan membantu pembeli mendapatkan produk terbaik dan penjual meningkatkan kualitas.</p>
+                </div>
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Pencarian Cerdas</h3>
+                    <p>Cari produk berdasarkan kategori, lokasi, harga, atau rating. Filter pencarian yang memudahkan Anda menemukan yang diinginkan.</p>
+                </div>
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Keamanan Terjamin</h3>
+                    <p>Sistem verifikasi mahasiswa yang ketat. Hanya mahasiswa yang terverifikasi yang dapat bergabung dalam platform ini.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="about-container">
+            <div class="about-content fade-in">
+                <h2>Mengapa Memilih BIZMA?</h2>
+                <p>BIZMA hadir sebagai solusi untuk mendukung semangat kewirausahaan di kalangan mahasiswa. Platform ini dirancang khusus untuk memfasilitasi mahasiswa dalam mengembangkan bisnis mereka.</p>
+                <p>Dengan teknologi terdepan dan fitur yang user-friendly, BIZMA memudahkan mahasiswa untuk mempromosikan produk, mencari pelanggan, dan membangun jaringan bisnis yang kuat.</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">Mahasiswa Aktif</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Produk Tersedia</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Kampus Partner</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">4.8/5</span>
+                        <span class="stat-label">Rating User</span>
+                    </div>
+                </div>
+            </div>
+            <div class="about-image fade-in">
+                <div style="width: 100%; height: 400px; background: var(--gradient); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: bold; box-shadow: var(--shadow);">
+                    <div style="text-align: center;">
+                        <i class="fas fa-graduation-cap" style="font-size: 4rem; margin-bottom: 1rem; display: block;"></i>
+                        Membangun Masa Depan<br>Entrepreneur Muda
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots Section -->
+    <section class="screenshots" id="screenshots">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2 class="section-title">Preview Aplikasi</h2>
+                <p class="section-subtitle">Lihat tampilan dan fitur-fitur menarik dalam aplikasi BIZMA</p>
+            </div>
+            <div class="screenshots-grid">
+                <!-- SCREENSHOT 1: HOME/BERANDA -->
+                <div class="screenshot-item fade-in">
+                    <div class="screenshot-mockup">
+                        <div class="screenshot-screen">
+                            <!-- GANTI DENGAN SCREENSHOT ANDA -->
+                            <img src="images/screenshot-home.jpg" alt="Home Screen" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+                            
+                            <!-- ATAU TETAP PAKAI ICON JIKA BELUM ADA SCREENSHOT -->
+                            <!-- <i class="fas fa-home" style="font-size: 3rem;"></i> -->
+                        </div>
+                    </div>
+                    <h3>Halaman Beranda</h3>
+                    <p>Interface yang intuitif dan mudah digunakan untuk navigasi aplikasi</p>
+                </div>
+                
+                <!-- SCREENSHOT 2: KATALOG PRODUK -->
+                <div class="screenshot-item fade-in">
+                    <div class="screenshot-mockup">
+                        <div class="screenshot-screen">
+                            <!-- GANTI DENGAN SCREENSHOT ANDA -->
+                            <img src="images/screenshot-products.jpg" alt="Products Screen" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+                            
+                            <!-- ATAU TETAP PAKAI ICON JIKA BELUM ADA SCREENSHOT -->
+                            <!-- <i class="fas fa-shopping-bag" style="font-size: 3rem;"></i> -->
+                        </div>
+                    </div>
+                    <h3>Katalog Produk</h3>
+                    <p>Jelajahi berbagai produk dari mahasiswa dengan kategori yang beragam</p>
+                </div>
+                
+                <!-- SCREENSHOT 3: PETA LOKASI -->
+                <div class="screenshot-item fade-in">
+                    <div class="screenshot-mockup">
+                        <div class="screenshot-screen">
+                            <!-- GANTI DENGAN SCREENSHOT ANDA -->
+                            <img src="images/screenshot-map.jpg" alt="Map Screen" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+                            
+                            <!-- ATAU TETAP PAKAI ICON JIKA BELUM ADA SCREENSHOT -->
+                            <!-- <i class="fas fa-map" style="font-size: 3rem;"></i> -->
+                        </div>
+                    </div>
+                    <h3>Peta Lokasi</h3>
+                    <p>Temukan penjual dan produk terdekat dengan fitur peta interaktif</p>
+                </div>
+                
+                <!-- SCREENSHOT 4: PROFIL PENGGUNA -->
+                <div class="screenshot-item fade-in">
+                    <div class="screenshot-mockup">
+                        <div class="screenshot-screen">
+                            <!-- GANTI DENGAN SCREENSHOT ANDA -->
+                            <img src="images/screenshot-profile.jpg" alt="Profile Screen" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+                            
+                            <!-- ATAU TETAP PAKAI ICON JIKA BELUM ADA SCREENSHOT -->
+                            <!-- <i class="fas fa-user" style="font-size: 3rem;"></i> -->
+                        </div>
+                    </div>
+                    <h3>Profil Pengguna</h3>
+                    <p>Kelola profil dan informasi akun Anda dengan mudah</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section class="download" id="download">
+        <div class="container">
+            <div class="fade-in">
+                <h2>Siap Memulai Bisnis Anda?</h2>
+                <p>Download aplikasi BIZMA sekarang dan bergabunglah dengan komunitas mahasiswa entrepreneur</p>
+                <div class="download-buttons">
+                    <!-- GANTI LINK DOWNLOAD DENGAN LINK ASLI APLIKASI ANDA -->
+                    <a href="https://play.google.com/store/apps/details?id=com.proyek.bizma" class="store-button" target="_blank">
+                        <div class="store-icon">
+                            <i class="fab fa-google-play"></i>
+                        </div>
+                        <div class="store-text">
+                            <small>Download di</small>
+                            <span>Google Play</span>
+                        </div>
+                    </a>
+                    <a href="https://apps.apple.com/app/bizma" class="store-button" target="_blank">
+                        <div class="store-icon">
+                            <i class="fab fa-apple"></i>
+                        </div>
+                        <div class="store-text">
+                            <small>Download di</small>
+                            <span>App Store</span>
+                        </div>
+                    </a>
+                    <a href="https://app.bizma.id" class="store-button" target="_blank">
+                        <div class="store-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="store-text">
+                            <small>Akses melalui</small>
+                            <span>Web App</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>BIZMA</h3>
+                <p>Platform digital yang menghubungkan mahasiswa entrepreneur dengan pelanggan di seluruh Indonesia.</p>
+                <div class="social-links">
+                    <!-- GANTI DENGAN LINK SOCIAL MEDIA ANDA -->
+                    <a href="https://facebook.com/bizma.id" class="social-link" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://twitter.com/bizma_id" class="social-link" target="_blank"><i class="fab fa-twitter"></i></a>
+                    <a href="https://instagram.com/bizma.id" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://linkedin.com/company/bizma" class="social-link" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Fitur</h3>
+                <a href="#">Etalase Digital</a>
+                <a href="#">Peta Lokasi</a>
+                <a href="#">Review & Rating</a>
+                <a href="#">Komunitas</a>
+                <a href="#">Pencarian Produk</a>
+            </div>
+            <div class="footer-section">
+                <h3>Bantuan</h3>
+                <a href="#">FAQ</a>
+                <a href="#">Panduan Pengguna</a>
+                <a href="#">Hubungi Kami</a>
+                <a href="#">Laporan Bug</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            <div class="footer-section">
+                <h3>Kontak</h3>
+                <!-- GANTI DENGAN INFORMASI KONTAK ANDA -->
+                <p><i class="fas fa-envelope"></i> support@bizma.id</p>
+                <p><i class="fas fa-phone"></i> +62 812-3456-7890</p>
+                <p><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</p>
+                <!-- CONTOH: <p><i class="fas fa-envelope"></i> nama.anda@email.com</p> -->
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 BIZMA. All rights reserved. Made with ❤️ for Indonesian Students</p>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" id="scrollTop">
+        <i class="fas fa-chevron-up"></i>
+    </div>
+
+    <script>
+        // Loading Screen
+        window.addEventListener('load', function() {
+            const loading = document.getElementById('loading');
+            setTimeout(() => {
+                loading.classList.add('hidden');
+            }, 1000);
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            const scrollTop = document.getElementById('scrollTop');
+            
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+                scrollTop.classList.add('visible');
+            } else {
+                navbar.classList.remove('scrolled');
+                scrollTop.classList.remove('visible');
+            }
+        });
+
+        // Smooth Scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll to Top
+        document.getElementById('scrollTop').addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Fade In Animation on Scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Mobile Menu Toggle (if needed for future enhancement)
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+
+        if (mobileMenu) {
+            mobileMenu.addEventListener('click', function() {
+                navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+            });
+        }
+
+        // Dynamic Stats Counter Animation
+        function animateStats() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const finalNumber = stat.textContent;
+                const isRating = finalNumber.includes('/');
+                
+                if (!isRating) {
+                    const number = parseInt(finalNumber.replace('+', ''));
+                    let current = 0;
+                    const increment = number / 50;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= number) {
+                            current = number;
+                            clearInterval(timer);
+                        }
+                        stat.textContent = Math.floor(current) + (finalNumber.includes('+') ? '+' : '');
+                    }, 30);
+                }
+            });
+        }
+
+        // Trigger stats animation when stats section is visible
+        const statsSection = document.querySelector('.stats');
+        if (statsSection) {
+            const statsObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateStats();
+                        statsObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            statsObserver.observe(statsSection);
+        }
+
+        // Add hover effects for better interactivity
+        document.querySelectorAll('.feature-item, .screenshot-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Add click effect for buttons
+        document.querySelectorAll('.btn-primary, .btn-secondary, .download-btn, .store-button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255,255,255,0.5)';
+                ripple.style.pointerEvents = 'none';
+                ripple.style.animation = 'ripple 0.6s linear';
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add CSS for ripple effect
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                0% {
+                    transform: scale(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Preload images and optimize performance
+        function preloadImages() {
+            const images = [
+                // Add any image URLs here if you have them
+            ];
+            
+            images.forEach(src => {
+                const img = new Image();
+                img.src = src;
+            });
+        }
+
+        // Call preload function
+        preloadImages();
+
+        // Add keyboard navigation support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
+            }
+        });
+
+        document.addEventListener('mousedown', function() {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        // Performance optimization: Lazy load content
+        const lazyElements = document.querySelectorAll('[data-lazy]');
+        if (lazyElements.length > 0) {
+            const lazyObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const element = entry.target;
+                        element.classList.add('loaded');
+                        lazyObserver.unobserve(element);
+                    }
+                });
+            });
+
+            lazyElements.forEach(el => lazyObserver.observe(el));
+        }
+    </script>
+</body>
+</html>
